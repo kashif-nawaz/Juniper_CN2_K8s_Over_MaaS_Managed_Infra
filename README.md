@@ -1,7 +1,7 @@
 # Juniper_CN2_K8s_Over_MaaS_Managed_Infrastructre 
 ## Problem Statement 
 * Communication service providers have already started adapting Containerised Network Function (CNF).
-* CNF (K8s cluster) can be spawned over Openstack VM or over bare metal servers as both approaches has inherited benefits / advantages. 
+* CNF (K8s cluster) can be spawned over Openstack VM or over bare metal servers as both approaches have their own inherited benefits / advantages. 
 * E.g. If CNFs (k8s cluster) are spawned over IaaS (Openstack) VMs then life cycle Mgmt of VMs (hosting K8s cluster) is very easy due to heat / Ansible automation of Openstack resources but it also introduces performance overhead and complexities on the networking side of Openstack. 
 * There is a strong advocacy from a school of thought to run CNF over bare  metals due to performance considerations and also to reduce networking complexities (discussed in the above point) but life cycle Mgmt of bare metal server is again challenging task (as BMS should be managed truly in Infrastructure as Code (IaC) style i.e. with minimal manual intervention).
 ## Proposed Solution
