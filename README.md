@@ -500,6 +500,9 @@ cd /root/contrail-manifests-k8s/single_cluster/
 ```
 from controller1 node
 sudo su -
+
+echo 'password for Juniper container images repo' > /root/password.txt
+cat /root/password.txt | nerdctl login hub.juniper.net/contrail  -u $USER --password-stdin
 cd /root/contrail-manifests-k8s/single_cluster/
 kubectl apply -f deployer.yml
 ```
