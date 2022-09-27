@@ -1,6 +1,6 @@
 # Juniper_CN2_K8s_Over_MaaS_Managed_Infrastructre 
 ## Problem Statement 
-* Communication service providers have already started adapting Containerinzed Network Function (CNF).
+* Communication service providers have already started adapting Containerised Network Function (CNF).
 * CNF (K8s cluster) can be spawned over Openstack VM or over bare metal servers as both approaches has inherited benefits / advantages. 
 * E.g. If CNFs (k8s cluster) are spawned over IaaS (Openstack) VMs then life cycle Mgmt of VMs (hosting K8s cluster) is very easy due to heat / Ansible automation of Openstack resources but it also introduces performance overhead and complexities on the networking side of Openstack. 
 * There is a strong advocacy from a school of thought to run CNF over bare  metals due to performance considerations and also to reduce networking complexities (discussed in the above point) but life cycle Mgmt of bare metal server is again challenging task (as BMS should be managed truly in Infrastrutr as Code (IaC) style i.e. with minimal manual intervention).
@@ -8,7 +8,7 @@
 * Canonical MaaS (Metal as a Service) offers Infrastrutr as Code way  for life cycle Mgmt of  bare metals  and virtual  infrastructure.
   - For GUI lover, MaaS provides a nice and easy to use GUI and  for terminal lovers MaaS offers feature set rich cli commands and API calls.
 * Juniper Networks have recently released Cloud native SDN Controller (CN2) which can be integrated with k8s cluster (as CNI) and it offers rich features set essentials considered essential for Telco clouds. 
-* In this wiki, I will discuss how to prepare MaaS managed infrastructure (bare metal and virtual) to host a k8s cluster along with Juniper CN2 (Cloud native SDN Controller) and then bring up K8s and CN2 cluster.
+* In this wiki, I will discuss how to prepare MaaS managed infrastructure (bare metal and virtual) to host a k8s cluster and then bring up K8s  cluster alongwith CN2 2 (Juniper Cloud native SDN Controller).
 ![Lab_Diagram](./images/CN2_k8s_Over_MaaS_Managed_Infra.jpg)
 
 ## Implementation Details 
