@@ -452,7 +452,7 @@ maas admin interface link-subnet $NODE_SYSID ${IFD_ID}  subnet=${SUBNET_ID} mode
 maas admin machine deploy $NODE_SYSID osystem=custom distro_series=focal-20.04.3
 ```
 * Prepare k8s deployment in deployer VM
-* Referece guide can be found on [Create a Kubernetes Cluste](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/task/cn-cloud-native-k8s-create-kubernetes-cluster.html)
+* Referece guide can be found on [Create a Kubernetes Cluster](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/task/cn-cloud-native-k8s-create-kubernetes-cluster.html)
 ```
 cd $HOME
 git clone https://github.com/kubernetes-sigs/kubespray.git
@@ -467,7 +467,7 @@ vim host.ini (adjust as your deployment, host.ini from my setup is avilable with
 ```
 * Review the k8s-cluster.yml file and ammend it if any changes required.
 ```
-cd $HOME/kubespray/inventory/mycluster/group_vars/k8s_cluster
+cd $HOME/kubespray/inventory/testcluster/group_vars/k8s_cluster
 vim k8s-cluster.yml
 ```
 * Sample  k8s-cluster.yml file from my setup is available with this wiki.
@@ -475,7 +475,7 @@ vim k8s-cluster.yml
 ```
 export ANSIBLE_HOST_KEY_CHECKING=False
 cd $HOME/kubespray
-ansible -i inventory/mycluster/hosts.ini -m ping all
+ansible -i inventory/testcluster/hosts.ini -m ping all
 ansible-playbook -i inventory/testcluster/hosts.ini cluster.yml -u ubuntu --become 
 ```
 * Montior the Deployment
@@ -494,7 +494,7 @@ sudo su -
 tar -zxvf contrail-manifests-k8s-22.1.0.93.tgz
 cd /root/contrail-manifests-k8s/single_cluster/
 ```
-* Ammend the deployer.yml as per [refernce guide](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/topic-map/cn-cloud-native-k8s-install-single-cluster-one-net.html) [Section](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/topic-map/cn-cloud-native-k8s-install-single-cluster-one-net.html#task_e15_krd_qjb)
+* Ammend the deployer.yml as per [refernce guide](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/topic-map/cn-cloud-native-k8s-install-single-cluster-one-net.html#task_e15_krd_qjb)
 * Deployment 
 ```
 from controller1 node
