@@ -1,4 +1,4 @@
-# Juniper CN2 K8s Over MaaS Managed Infrastructre 
+# Juniper CN2 K8s Over MaaS Managed Infrastructure 
 ## Problem Statement 
 * Communication service providers have already started adapting Containerised Network Function (CNF).
 * CNF (K8s cluster) can be spawned over Openstack VM or over bare metal servers as both approaches have their own inherited benefits / advantages. 
