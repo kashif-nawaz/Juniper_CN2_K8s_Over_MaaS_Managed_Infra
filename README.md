@@ -538,7 +538,7 @@ kube-system       nginx-proxy-worker2                         1/1     Running   
 kube-system       nodelocaldns-cflck                          1/1     Running   0          15h   192.168.24.97    controller1   <none>           <none>
 kube-system       nodelocaldns-pm5bw                          1/1     Running   0          15h   192.168.24.108   worker2       <none>           <none>
 kube-system       nodelocaldns-v98vj                          1/1     Running   0          15h   192.168.24.107   worker1       <none>           <none
-``
+```
 
 ## What's Next
 * If you look at my lab diagram it shows multiple NICs for worker nodes but I have used single NIC for K8s deployment i.e Shared network deployment (using same NIC for Data and Control plane traffic).
