@@ -237,6 +237,9 @@ export LC_CTYPE
 sudo yum install -y git net-tools sshpass wget python3-pip python36 epel-release
 sudo pip3 install --upgrade pip
 sudo pip3 install ansible
+exit
+pwd 
+/home/contrail
 ssh-keygen
 ```
 
