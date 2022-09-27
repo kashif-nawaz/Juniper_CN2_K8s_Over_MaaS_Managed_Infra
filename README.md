@@ -503,6 +503,42 @@ sudo su -
 cd /root/contrail-manifests-k8s/single_cluster/
 kubectl apply -f deployer.yml
 ```
+## Verification
+
+* All nodes should be in ready state and all pods should be in running status
+
+```
+kubectl get nodes -o wide
+NAME          STATUS   ROLES                  AGE   VERSION   INTERNAL-IP      EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION     CONTAINER-RUNTIME
+controller1   Ready    control-plane,master   15h   v1.23.5   192.168.24.97    <none>        Ubuntu 20.04.3 LTS   5.4.0-97-generic   containerd://1.6.8
+worker1       Ready    <none>                 15h   v1.23.5   192.168.24.107   <none>        Ubuntu 20.04.3 LTS   5.4.0-97-generic   containerd://1.6.8
+worker2       Ready    <none>                 15h   v1.23.5   192.168.24.108   <none>        Ubuntu 20.04.3 LTS   5.4.0-97-generic   containerd://1.6.8
+
+kubectl get pods -o wide --all-namespaces
+NAMESPACE         NAME                                        READY   STATUS    RESTARTS   AGE   IP               NODE          NOMINATED NODE   READINESS GATES
+contrail-deploy   contrail-k8s-deployer-858bb45dd7-nxwrk      1/1     Running   0          14h   192.168.24.97    controller1   <none>           <none>
+contrail-system   contrail-k8s-apiserver-745c6c7977-thg9b     1/1     Running   0          14h   192.168.24.97    controller1   <none>           <none>
+contrail-system   contrail-k8s-controller-7777877b44-c2ln4    1/1     Running   0          14h   192.168.24.97    controller1   <none>           <none>
+contrail          contrail-control-0                          2/2     Running   0          14h   192.168.24.97    controller1   <none>           <none>
+contrail          contrail-k8s-kubemanager-869dc9c546-sq86j   1/1     Running   0          14h   192.168.24.97    controller1   <none>           <none>
+contrail          contrail-vrouter-masters-f6qxs              3/3     Running   0          14h   192.168.24.97    controller1   <none>           <none>
+contrail          contrail-vrouter-nodes-szdc6                3/3     Running   0          14h   192.168.24.107   worker1       <none>           <none>
+contrail          contrail-vrouter-nodes-z65hr                3/3     Running   0          14h   192.168.24.108   worker2       <none>           <none>
+kube-system       coredns-59d6b54d97-h56lp                    1/1     Running   0          14h   10.233.64.2      controller1   <none>           <none>
+kube-system       coredns-59d6b54d97-vwrnv                    1/1     Running   0          15h   10.233.66.0      worker2       <none>           <none>
+kube-system       dns-autoscaler-78676459f6-kn8mx             1/1     Running   0          15h   10.233.66.1      worker2       <none>           <none>
+kube-system       kube-apiserver-controller1                  1/1     Running   1          15h   192.168.24.97    controller1   <none>           <none>
+kube-system       kube-controller-manager-controller1         1/1     Running   1          15h   192.168.24.97    controller1   <none>           <none>
+kube-system       kube-proxy-brm4j                            1/1     Running   0          15h   192.168.24.97    controller1   <none>           <none>
+kube-system       kube-proxy-pdn7w                            1/1     Running   0          15h   192.168.24.108   worker2       <none>           <none>
+kube-system       kube-proxy-rf5qr                            1/1     Running   0          15h   192.168.24.107   worker1       <none>           <none>
+kube-system       kube-scheduler-controller1                  1/1     Running   1          15h   192.168.24.97    controller1   <none>           <none>
+kube-system       nginx-proxy-worker1                         1/1     Running   0          15h   192.168.24.107   worker1       <none>           <none>
+kube-system       nginx-proxy-worker2                         1/1     Running   0          15h   192.168.24.108   worker2       <none>           <none>
+kube-system       nodelocaldns-cflck                          1/1     Running   0          15h   192.168.24.97    controller1   <none>           <none>
+kube-system       nodelocaldns-pm5bw                          1/1     Running   0          15h   192.168.24.108   worker2       <none>           <none>
+kube-system       nodelocaldns-v98vj                          1/1     Running   0          15h   192.168.24.107   worker1       <none>           <none
+``
 
 ## What's Next
 * If you look at my lab diagram it shows multiple NICs for worker nodes but I have used single NIC for K8s deployment i.e Shared network deployment (using same NIC for Data and Control plane traffic).
