@@ -494,7 +494,7 @@ sudo su -
 tar -zxvf contrail-manifests-k8s-22.1.0.93.tgz
 cd /root/contrail-manifests-k8s/single_cluster/
 ```
-* Ammend the deployer.yml as per [refernce guide](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/topic-map/cn-cloud-native-k8s-install-single-cluster-one-net.html#task_e15_krd_qjb)
+* Ammend the deployer.yml as per [reference guide](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/topic-map/cn-cloud-native-k8s-install-single-cluster-one-net.html#task_e15_krd_qjb)
 * Deployment 
 ```
 from controller1 node
