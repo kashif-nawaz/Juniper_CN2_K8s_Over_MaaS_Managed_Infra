@@ -68,8 +68,8 @@ credentials_dir: "{{ inventory_dir }}/credentials"
 kube_network_plugin: cni
 
 # Setting multi_networking to true will install Multus: https://github.com/intel/multus-cni
-kube_network_plugin_multus: false
-
+kube_network_plugin_multus: true 
+multus_cni_version: "0.3.1"
 # Kubernetes internal network for services, unused block of space.
 kube_service_addresses: 10.233.0.0/18
 
@@ -166,7 +166,7 @@ dns_mode: coredns
 # Set manual server if using a custom cluster DNS server
 # manual_dns_server: 10.x.x.x
 # Enable nodelocal dns cache
-enable_nodelocaldns: true
+enable_nodelocaldns: false
 enable_nodelocaldns_secondary: false
 nodelocaldns_ip: 169.254.25.10
 nodelocaldns_health_port: 9254
