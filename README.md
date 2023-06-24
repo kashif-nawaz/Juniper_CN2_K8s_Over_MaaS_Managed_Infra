@@ -1,19 +1,24 @@
-# Juniper CN2 K8s Over MaaS Managed Infrastructure 
-## Problem Statement 
-* Communication service providers have already started adapting Containerised Network Function (CNF).
-* CNF (K8s cluster) can be spawned over Openstack VM or over bare metal servers as both approaches have their own inherited benefits / advantages. 
-* E.g. If CNFs (k8s cluster) are spawned over IaaS (Openstack) VMs then life cycle Mgmt of VMs (hosting K8s cluster) is very easy due to heat / Ansible automation of Openstack resources but it also introduces performance overhead and complexities on the networking side of Openstack. 
-* There is a strong advocacy from a school of thought to run CNF over bare  metals due to performance considerations and also to reduce networking complexities (discussed in the above point) but life cycle Mgmt of bare metal server is again challenging task (as BMS should be managed truly in Infrastructure as Code (IaC) style i.e. with minimal manual intervention).
-## Proposed Solution
-* Canonical MaaS (Metal as a Service) offers infrastructure as Code way  for life cycle Mgmt of  bare metals  and virtual  infrastructure.
-  - For GUI lover, MaaS provides a nice and easy to use GUI and  for terminal lovers MaaS offers feature set rich cli commands and API calls.
-* Juniper Networks have recently released Cloud native SDN Controller (CN2) which can be integrated with k8s cluster (as CNI) and it offers rich features set which are considered essentials for Telco cloud solutions.  
-* In this wiki, I will discuss how to prepare MaaS managed infrastructure (bare metal and virtual) to host a k8s cluster and then bring up K8s  cluster alongwith CN2  (Juniper Cloud native SDN Controller).
-![Lab_Diagram](./images/CN2_k8s_Over_MaaS_Managed_Infra.jpg)
+# Juniper CN2 K8s Over MAAS Managed Infrastructure
 
-## Implementation Details 
-* It is assumed that Control-host is already bootstrapped with your favourite Linux distro and necessary setup is done to host MaaS VM.
-* Creating MaaS VM
+## Problem Statement
+
+-   Communication service providers have already started adapting Containerized Network Function (CNF).
+-   CNF (K8s cluster) can be spawned over Openstack VMs or over bare metal servers as both approaches have their own inherited benefits / advantages.
+-   E.g., If CNFs (k8s cluster) are spawned over IaaS (Openstack) VMs then life cycle Mgmt of VMs (hosting K8s cluster) is very easy due to heat / Ansible automation of Openstack resources but it also introduces performance overhead and complexities on the networking side of Openstack.
+-   There is a strong advocacy from a school of thought to run CNF over bare metals due to performance considerations and also to reduce networking complexities (discussed in the above point) but life cycle management of bare metal server is again challenging task (as BMS should be managed truly in Infrastructure as Code (IAAC) style i.e. with minimal manual intervention).
+
+## Proposed Solution
+
+-   Canonical MAAS (Metal as a Service) offers infrastructure as Code way for life cycle management of bare metals and virtual infrastructure.
+    -   For GUI lover, MAAS provides a nice and easy to use GUI and for terminal lovers MAAS offers feature set rich cli commands and API calls.
+-   Juniper Networks have recently released Cloud native SDN Controller (CN2) which can be integrated with k8s cluster (as CNI) and it offers rich features set which are considered essentials for Telco cloud solutions.
+-   In this wiki, I will discuss how to prepare MAAS managed infrastructure (bare metal and virtual) to host a k8s cluster and then bring up K8s cluster along with CN2 (Juniper Cloud native SDN Controller). ![Lab_Diagram](./images/CN2_k8s_Over_MaaS_Managed_Infra.jpg)
+
+## Implementation Details
+
+-   It is assumed that Control-host is already bootstrapped with your favorite Linux distro and necessary setup is done to host MAAS VM.
+-   Creating MAAS VM
+
 ```
 wget 'http://cloud-images-archive.ubuntu.com/releases/focal/release-20210921/ubuntu-20.04-server-cloudimg-amd64-disk-kvm.img'
 qemu-img create -b ubuntu-20.04-server-cloudimg-amd64-disk-kvm.img  -f qcow2 -F qcow2 /var/lib/libvirt/images/maas.qcow2 200G
@@ -89,9 +94,10 @@ virt-install --name maas \
   --network bridge:br-external \
   --console pty,target_type=serial
 ```
-* Wait till MaaS VM is getting prepared. 
 
-* Set up MaaS
+-   Wait till MAAS VM is getting prepared.
+-   Set up MAAS.
+
 ```
 sudo snap switch --channel=latest/stable lxd
 sudo snap install lxd
@@ -121,10 +127,12 @@ echo $IP_ADDRESS
 ssh-keygen
 maas admin sshkeys create key="$(cat /home/contrail/.ssh/id_rsa.pub)"
 ```
-* Open MaaS GUI and do intial setup ( OS image synch up etc)
-  - Ubunut-20.4 latest stable release will be automatically synced.
-  - Make sure to select and synch Centos70.
-* Setup Maas Networks
+
+-   Open MAAS GUI and do initial setup (OS image synch up etc.)
+    -   Ubunut-20.4 latest stable release will be automatically synced.
+    -   Make sure to select and synch Centos70.
+-   Setup MAA Networks
+
 ```
 FABRIC_ID=$(maas admin subnet read "$SUBNET" | jq -r ".vlan.fabric_id")
 VLAN_TAG=$(maas admin subnet read "$SUBNET" | jq -r ".vlan.vid")
@@ -158,7 +166,8 @@ maas admin ipranges create type=reserved start_ip=192.168.3.100 end_ip=192.168.3
 maas admin subnet update $SUBNET_ID rdns_mode=0
 maas admin subnets update name=storage-subnet fabric=$FABRIC_ID
 ```
-* Prepare Ubuntu-20.4.3 Image with kernel 5. 4.0-97-generic [CN2 22.1 is qualified with this particular release](https://www.juniper.net/documentation/en_US/release-independent/contrail-cloud-native/topics/reference/cloud-native-contrail-supported-platforms.pdf)
+
+-   Prepare Ubuntu-20.4.3 Image with kernel 5. 4.0-97-generic [CN2 22.1 is qualified with this particular release](https://www.juniper.net/documentation/en_US/release-independent/contrail-cloud-native/topics/reference/cloud-native-contrail-supported-platforms.pdf)
 
 ```
 sudo su -
@@ -192,7 +201,9 @@ cd /home/contrail/
 sudo chown contrail:contrail focal-20.04.3.tgz
 maas admin boot-resources create name='custom/focal-20.04.3' title='Ubuntu-20.04.3' architecture='amd64/generic' filetype='tgz' content@=focal-20.04.3.tgz
 ```
-* Prepare deployer VM  on control-host 
+
+-   Prepare deployer VM on control-host
+
 ```
 qemu-img create -f qcow2 /var/lib/libvirt/images/deployer-node.qcow2 100G
 virt-install --ram 4096 --vcpus 4 --os-variant centos7.0 --disk path=/var/lib/libvirt/images/deployer-node.qcow2,device=disk,bus=virtio,format=qcow2 --graphics vnc,listen=0.0.0.0 --network bridge=br-ctrplane  --boot=network,hd --name deployer-node --cpu Nehalem,+vmx --dry-run --print-xml > /tmp/deployer-node.xml; virsh define --file /tmp/deployer-node.xml
@@ -202,8 +213,9 @@ Interface  Type       Source     Model       MAC
 -------------------------------------------------------
 -          bridge     br-ctrplane virtio      52:54:00:20:25:16
 ```
-* Comission the deployer VM on MaaS
-* Make sure Cent70 image is already synched in MaaS
+
+-   Commission the deployer VM on MAAS.
+-   Make sure Cent70 image is already synched in MAAS.
 
 ```
 maas admin machines create \
@@ -224,7 +236,7 @@ maas admin machine deploy $NODE_SYSID osystem=centos distro_series='centos70'
 (wait unitll deployer VM is deployed)
 ```
 
-* Install Required Packages on deployer VM.
+-   Install Required Packages on deployer VM.
 
 ```
 from MaaS VM
@@ -243,12 +255,14 @@ pwd
 ssh-keygen
 ```
 
-* Copy deployer VM ssh pubkey into MaaS VM /home/contrail/deployer-node-id_rsa.pub
-* Uploaed deployer VM ssh pubkey into MaaS
+-   Copy deployer VM ssh pubkey into MAAS VM /home/contrail/deployer-node-id_rsa.pub
+-   Upload deployer VM ssh pubkey into MAAS
+
 ```
 maas admin sshkeys create key="$(cat /home/contrail/deployer-node-id_rsa.pub)"
 ```
-* Prepare K8s Controller VM on Control-host
+
+-   Prepare K8s Controller VM on Control-host
 
 ```
 for node in controller1
@@ -262,9 +276,9 @@ Interface  Type       Source     Model       MAC
 -------------------------------------------------------
 -          bridge     br-ctrplane virtio      52:54:00:fb:b4:ce
 -          bridge     br-Tenant  virtio      52:54:00:90:b4:bf
-
 ```
-* Comission  controller1 VM into MaaS.
+
+-   Commission controller1 VM into MAAS.
 
 ```
 maas admin machines create \
@@ -278,8 +292,9 @@ power_parameters_power_address=qemu+ssh://contrail@192.168.24.10/system \
 power_parameters_power_pass=contrail123 \
 osystem=custom distro_series=focal-20.04.3
 ```
-* Wait until controller1 commissioning is completed. 
-* Update controller1 VM settings in MaaS.
+
+-   Wait until controller1 commissioning is completed.
+-   Update controller1 VM settings in MAAS.
 
 ```
 maas admin tags create name=controller1 comment='controller1'
@@ -298,11 +313,15 @@ SUBNET_ID=$(maas admin subnets read | jq '.[] | select(."cidr"=="192.168.5.0/24"
 IFD_ID=$(maas admin interfaces read $NODE_SYSID | jq '.[] | select(."name"=="ens4") | .["id"]')
 maas admin interface link-subnet $NODE_SYSID ${IFD_ID}  subnet=${SUBNET_ID} mode=auto 
 ```
-* Deploy  controller1 VM.
+
+-   Deploy controller1 VM.
+
 ```
 maas admin machine deploy $NODE_SYSID osystem=custom distro_series=focal-20.04.3
 ```
-* Comission the worker1  into MaaS
+
+-   Comission the worker1 into MaaS
+
 ```
 maas admin machines create \
     hostname=worker1 \
@@ -315,8 +334,10 @@ maas admin machines create \
     power_parameters_power_pass=calvin \
     power_parameters_power_address=192.168.100.121
 ```
-* Wait until worker1  commissioning is completed.
-* Update worker1  settings in MaaS.
+
+-   Wait until worker1 commissioning is completed.
+-   Update worker1 settings in MAAS.
+
 ```
 maas admin tags create name=worker1 comment='worker1'
 NODE_SYSID=$(maas admin machines read | jq '.[] | select(."hostname"=="worker1")| .["system_id"]' | tr -d '"')
@@ -348,11 +369,15 @@ SUBNET_ID=$(maas admin subnets read | jq '.[] | select(."cidr"=="192.168.3.0/24"
 IFD_ID=$(maas admin interfaces read $NODE_SYSID | jq '.[] | select(."name"=="eno3") | .["id"]')
 maas admin interface link-subnet $NODE_SYSID ${IFD_ID}  subnet=${SUBNET_ID} mode=auto 
 ```
-* Deploy  worker1. 
+
+-   Deploy worker1.
+
 ```
 maas admin machine deploy $NODE_SYSID osystem=custom distro_series=focal-20.04.3
 ```
-* Comission  worker2  into MaaS.
+
+-   Commission worker2 into MAAS.
+
 ```
 maas admin machines create \
     hostname=worker2 \
@@ -366,8 +391,10 @@ maas admin machines create \
     power_parameters_power_address=192.168.100.122 \
     osystem=custom distro_series=focal-20.04.3
 ```
-* Wait until worker2  commissioning is completed.
-* Update worker1  settings in MaaS.
+
+-   Wait until worker2 commissioning is completed.
+-   Update worker1 settings in MAAS.
+
 ```
 maas admin tags create name=worker2 comment='worker2'
 NODE_SYSID=$(maas admin machines read | jq '.[] | select(."hostname"=="worker2")| .["system_id"]' | tr -d '"')
@@ -399,11 +426,15 @@ SUBNET_ID=$(maas admin subnets read | jq '.[] | select(."cidr"=="192.168.3.0/24"
 IFD_ID=$(maas admin interfaces read $NODE_SYSID | jq '.[] | select(."name"=="eno3") | .["id"]')
 maas admin interface link-subnet $NODE_SYSID ${IFD_ID}  subnet=${SUBNET_ID} mode=auto 
 ```
-* Deploy  worker2 
+
+-   Deploy worker2
+
 ```
 maas admin machine deploy $NODE_SYSID osystem=custom distro_series=focal-20.04.3
 ```
-* Comission  worker3  into MaaS
+
+-   Commission worker3 into MAAS
+
 ```
 maas admin machines create \
     hostname=worker3 \
@@ -417,8 +448,10 @@ maas admin machines create \
     power_parameters_power_address=192.168.100.123 \
     osystem=custom distro_series=focal-20.04.3
 ```
-* Wait until worker2  commissioning is completed.
-* Update worker1  settings in MaaS.
+
+-   Wait until worker2 commissioning is completed.
+-   Update worker1 settings in MAAS.
+
 ```
 maas admin tags create name=worker3 comment='worker3'
 NODE_SYSID=$(maas admin machines read | jq '.[] | select(."hostname"=="worker3")| .["system_id"]' | tr -d '"')
@@ -450,12 +483,16 @@ SUBNET_ID=$(maas admin subnets read | jq '.[] | select(."cidr"=="192.168.3.0/24"
 IFD_ID=$(maas admin interfaces read $NODE_SYSID | jq '.[] | select(."name"=="eno3") | .["id"]')
 maas admin interface link-subnet $NODE_SYSID ${IFD_ID}  subnet=${SUBNET_ID} mode=auto 
 ```
-* Deploy  worker3 
+
+-   Deploy worker3.
+
 ```
 maas admin machine deploy $NODE_SYSID osystem=custom distro_series=focal-20.04.3
 ```
-* Prepare k8s deployment in deployer VM
-* Referece guide can be found on [Create a Kubernetes Cluster](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/task/cn-cloud-native-k8s-create-kubernetes-cluster.html)
+
+-   Prepare k8s deployment in deployer VM
+-   Reference guide can be found on [Create a Kubernetes Cluster](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/task/cn-cloud-native-k8s-create-kubernetes-cluster.html)
+
 ```
 cd $HOME
 git clone https://github.com/kubernetes-sigs/kubespray.git
@@ -468,38 +505,47 @@ cd inventory/testcluster
 cp inventory.ini hosts.ini
 vim host.ini (adjust as your deployment, host.ini from my setup is avilable with this wiki)
 ```
-* Review the k8s-cluster.yml file and ammend it if any changes required.
+
+-   Review the k8s-cluster.yml file and amend it if any changes required.
+
 ```
 cd $HOME/kubespray/inventory/testcluster/group_vars/k8s_cluster
 vim k8s-cluster.yml
 ```
-* Sample  k8s-cluster.yml file from my setup is available with this wiki.
-* Initiate the k8s cluster deployment.
+
+-   Sample k8s-cluster.yml file from my setup is available with this wiki.
+-   Initiate the k8s cluster deployment.
+
 ```
 export ANSIBLE_HOST_KEY_CHECKING=False
 cd $HOME/kubespray
 ansible -i inventory/testcluster/hosts.ini -m ping all
 ansible-playbook -i inventory/testcluster/hosts.ini cluster.yml -u ubuntu --become 
 ```
-* Montior the Deployment
+
+-   Monitor the Deployment
 
 ```
 kubectl get nodes
 kubectl get pods -A -o wide
 ```
-* All pods should have a STATUS of Running except for the DNS pods. The DNS pods do not come up because there is no networking. This is what we expect
-* Prepare CN2 deployer.
-* I have executed following sequence from controller1 node as root user, but it is doable from deployer node as well provided kubectl is installed and credentials are imported. 
-* Download CN2 [manifest](https://support.juniper.net/support/downloads/?p=contrail#sw)
+
+-   All pods should have a STATUS of Running except for the DNS pods. The DNS pods do not come up because there is no networking. This is what we expect.
+-   Prepare CN2 deployer.
+-   I have executed following sequence from controller1 node as root user, but it is doable from deployer node as well provided kubectl is installed and credentials are imported.
+-   Download CN2 [manifest](https://support.juniper.net/support/downloads/?p=contrail#sw)
+
 ```
 from controller1 node
 sudo su -
 tar -zxvf contrail-manifests-k8s-22.1.0.93.tgz
 cd /root/contrail-manifests-k8s/single_cluster/
 ```
-* Ammend the deployer.yml as per [reference guide](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/topic-map/cn-cloud-native-k8s-install-single-cluster-one-net.html#task_e15_krd_qjb)
-* Sample deployer.yaml from my setup is avilable with this wiki.
-* Kicking off CN2 deployment. 
+
+-   Ammend the deployer.yml as per [reference guide](https://www.juniper.net/documentation/us/en/software/cn-cloud-native22/cn-cloud-native-k8s-install-and-lcm/topics/topic-map/cn-cloud-native-k8s-install-single-cluster-one-net.html#task_e15_krd_qjb)
+-   Sample deployer.yaml from my setup is avilable with this wiki.
+-   Kicking off CN2 deployment.
+
 ```
 from controller1 node
 sudo su -
@@ -509,9 +555,10 @@ cat /root/password.txt | nerdctl login hub.juniper.net/contrail  -u $USER --pass
 cd /root/contrail-manifests-k8s/single_cluster/
 kubectl apply -f deployer.yml
 ```
+
 ## Verification
 
-* All nodes should be in ready state and all pods should be in running status
+-   All nodes should be in ready state, and all pods should be in running status
 
 ```
 kubectl get nodes -o wide
@@ -547,14 +594,18 @@ kube-system       nodelocaldns-v98vj                          1/1     Running   
 ```
 
 ## What's Next
-* If you look at my lab diagram it shows multiple NICs for worker nodes but I have used single NIC for K8s deployment i.e Shared network deployment (using same NIC for Data and Control plane traffic).
-* In next go I will deploy CN2 DPDK vrouter while using seprate NICs for Control and Data Plane Network. 
-* I also have added Storage Network and will deliberate how to integrate Ceph storage in this solution and  to use the dedicated storage network for Ceph access from Controller and worker nodes.
+
+-   If you look at my lab diagram it shows multiple NICs for worker nodes, but I have used single NIC for K8s deployment i.e Shared network deployment (using same NIC for Data and Control plane traffic).
+-   In next go I will deploy CN2 DPDK vrouter while using separate NICs for Control and Data Plane Network.
+-   I also have added Storage Network and will deliberate how to integrate Ceph storage in this solution and to use the dedicated storage network for Ceph access from Controller and worker nodes.
 
 # Conclusion
-* Multiple options are available for life cycle mgmt of k8s cluster.
-* Life cycle mgmt for bare metal infrastructure hosting k8s cluster is an  important factor and should follow Infrastrutre as Code (IaC) model.
 
+-   Multiple options are available for life cycle management of k8s cluster.
+-   Life cycle management for bare metal infrastructure hosting k8s cluster is an important factor and should follow Infrastructure as Code (IAAC) model.
 
-   
+# References
 
+<https://github.com/kashif-nawaz/charmed-kubernetes-on-bare-metals>
+
+<https://github.com/antongisli/maas-baremetal-k8s-tutorial/blob/main/README.md>
